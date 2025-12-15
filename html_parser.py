@@ -82,17 +82,22 @@ def parse_html_to_database(html_content: str) -> list:
         # 2. Знаходимо розмір файлу
         
         # Пріоритет 1: Стиль Myrient (комірка з класом 'size')
+        # Це спрацює для Myrient
         size_cell_myrient = row.find('td', class_='size')
         if size_cell_myrient:
             item_size = size_cell_myrient.get_text(strip=True)
 
         # Пріоритет 2: Загальний стиль (шукаємо в усіх комірках (<td>) одиниці розміру)
+        # Це спрацює для Internet Archive та як fallback для Myrient
         if not item_size:
             cells = row.find_all('td')
             for cell in cells:
                 text = cell.get_text(strip=True)
-                # Шаблон: число (з крапкою чи без), необов'язковий пробіл, одиниця (KiB, MiB, GiB, KB, MB, GB, bytes)
-                if re.search(r'\d+(\.\d+)?\s?(KiB|MiB|GiB|KB|MB|GB|bytes)\Z', text, re.IGNORECASE):
+                
+                # Підтримує: 6.5 GiB (Myrient fallback), 400M (Internet Archive), 1.5G, 100K, bytes
+                size_units_regex = r'\d+(\.\d+)?\s?(K|M|G|T|P|KiB|MiB|GiB|TiB|PiB|KB|MB|GB|TB|PB|bytes)\Z'
+                
+                if re.search(size_units_regex, text, re.IGNORECASE):
                     item_size = text
                     break
         
