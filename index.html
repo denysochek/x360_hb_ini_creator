@@ -1,85 +1,81 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="appTitle">HTML-&gt;INI Генератор Бази Даних</title>
+    <!-- Заголовок сторінки -->
+    <title data-i18n="appTitle">HTML-&gt;INI Database Generator</title> 
     <!-- Підключення Tailwind CSS для стилізації -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Стилі для забезпечення гарного вигляду прокрутки */
+        /* Стилі для забезпечення гарного вигляду прокрутки та моноширинного шрифту */
         textarea {
             resize: none;
-            font-family: monospace;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
-        /* Встановлюємо плавний перехід для кольорів теми */
-        .body-transition {
-            transition: background-color 0.3s, color 0.3s;
+        /* Встановлюємо основний фон */
+        body {
+            background-color: #f3f4f6; /* light gray background */
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 body-transition min-h-screen p-4 sm:p-8">
+<body class="min-h-screen p-4 sm:p-8"> 
     <div class="max-w-4xl mx-auto">
-
-        <!-- HEADER AND CONTROLS -->
-        <header class="text-center mb-8 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition duration-300">
-            <div class="flex justify-between items-start mb-4">
-                <!-- Theme Toggle -->
-                <button id="themeToggle" onclick="toggleTheme()" class="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-                    <!-- Icon placeholder for Moon/Sun. Initial state is Sun (Light mode) -->
-                    <svg id="themeIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                </button>
-
+        
+        <!-- HEADER AND CONTROLS - Сучасний дизайн -->
+        <header class="text-center mb-10 bg-white p-8 rounded-2xl shadow-xl border-t-4 border-indigo-500">
+            <div class="flex justify-end items-start mb-4">
+                
                 <!-- Language Toggle -->
                 <div class="relative inline-block text-left">
-                    <select id="langSelect" onchange="toggleLanguage(this.value)" class="p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg shadow-sm transition">
-                        <option value="uk">Українська</option>
+                    <select id="langSelect" onchange="toggleLanguage(this.value)" class="p-2 border border-gray-300 bg-white text-gray-700 rounded-lg shadow-sm transition hover:border-indigo-500">
                         <option value="en">English</option>
+                        <option value="uk">Українська</option>
                     </select>
                 </div>
             </div>
 
-            <h1 data-i18n="mainHeader" class="text-3xl font-extrabold text-indigo-700 dark:text-indigo-400 mb-2">Генератор Бази Даних (HTML &rarr; INI)</h1>
-            <p data-i18n="subheader" class="text-gray-600 dark:text-gray-400">Вставте вміст HTML-файлу зі списком контенту (каталогу) для генерації INI-подібного формату.</p>
+            <!-- Виразний заголовок -->
+            <h1 data-i18n="mainHeader" class="text-4xl font-extrabold text-gray-800 mb-2 tracking-tight">
+                Database Generator <span class="text-indigo-600">(HTML &rarr; INI)</span>
+            </h1>
+            <p data-i18n="subheader" class="text-gray-600 text-lg">
+                Paste the HTML directory listing to instantly generate INI-like database entries.
+            </p>
         </header>
 
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl space-y-6 transition duration-300">
-
+        <!-- Основний блок контенту -->
+        <div class="bg-white p-8 rounded-2xl shadow-2xl space-y-8">
+            
             <!-- Секція для вхідного HTML -->
             <div>
-                <label for="htmlInput" data-i18n="labelHtmlInput" class="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">1. Вставте вміст HTML-файлу:</label>
-                <textarea id="htmlInput" rows="12" class="w-full p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" data-i18n-placeholder="placeholderHtmlInput" placeholder="Вставте сюди весь код HTML-сторінки, що містить список файлів (наприклад, <tr><td class=&quot;link&quot;><a href=&quot;...&quot;>File.zip</a></td><td class=&quot;size&quot;>1.2 GB</td></tr>)..."></textarea>
+                <label for="htmlInput" data-i18n="labelHtmlInput" class="block text-xl font-semibold text-gray-800 mb-3">1. Paste HTML File Content:</label>
+                <textarea id="htmlInput" rows="12" class="w-full p-4 border border-gray-300 bg-gray-50 text-gray-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-inner" data-i18n-placeholder="placeholderHtmlInput" placeholder="Paste the entire HTML page code here, containing the file list (e.g., from Myrient or Internet Archive listing)..."></textarea>
             </div>
 
-            <!-- Кнопки обробки -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Кнопка парсингу -->
-                <button id="processButton" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700 transition duration-200 transform hover:scale-105 disabled:opacity-50" onclick="processHtml()">
-                    <span data-i18n="btnGenerateDB">Згенерувати Базу Даних</span>
-                </button>
-
-                <!-- Кнопка генерації описів за допомогою AI -->
-                <button id="aiButton" class="px-8 py-3 bg-emerald-600 text-white font-bold rounded-full shadow-lg hover:bg-emerald-700 transition duration-200 transform hover:scale-105 disabled:opacity-50" onclick="generateAllDescriptions()" disabled>
-                    <span data-i18n="btnGenerateAI">✨ Згенерувати Описи (AI-пошук)</span>
+            <!-- Кнопка обробки (тепер одна) -->
+            <div class="flex justify-center">
+                <button id="processButton" class="w-full max-w-sm px-8 py-4 bg-indigo-600 text-white font-extrabold rounded-xl shadow-lg shadow-indigo-500/50 hover:bg-indigo-700 transition duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:shadow-none" onclick="processHtml()">
+                    <span data-i18n="btnGenerateDB">Generate Database</span>
                 </button>
             </div>
-
+            
             <!-- Повідомлення про статус -->
-            <div id="statusMessage" class="text-center text-sm font-medium h-6 text-gray-700 dark:text-gray-300"></div>
+            <div id="statusMessage" class="text-center text-base font-medium h-6 text-gray-700"></div>
 
             <!-- Секція для вихідного INI-формату -->
             <div>
-                <label for="iniOutput" data-i18n="labelIniOutput" class="block text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">2. Результат (INI-подібний формат):</label>
-                <textarea id="iniOutput" rows="12" readonly class="w-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg transition duration-150"></textarea>
+                <label for="iniOutput" data-i18n="labelIniOutput" class="block text-xl font-semibold text-gray-800 mb-3">2. Result (INI-like Format):</label>
+                <textarea id="iniOutput" rows="12" readonly class="w-full p-4 bg-gray-100 text-gray-800 border border-gray-300 rounded-xl transition duration-150 shadow-inner"></textarea>
             </div>
 
             <!-- Кнопки копіювання/завантаження -->
-            <div class="flex justify-center space-x-4">
-                <button id="copyButton" class="px-6 py-2 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition duration-200 disabled:opacity-50" onclick="copyOutput()" disabled>
-                    <span data-i18n="btnCopy">Копіювати результат</span>
+            <div class="flex justify-center space-x-6 pt-4">
+                <button id="copyButton" class="px-8 py-3 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition duration-200 disabled:opacity-50 shadow-md hover:shadow-lg" onclick="copyOutput()" disabled>
+                    <span data-i18n="btnCopy">Copy Result</span>
                 </button>
-                <button id="downloadButton" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition duration-200 disabled:opacity-50" onclick="downloadOutput()" disabled>
-                    <span data-i18n="btnDownload">Завантажити .ini</span>
+                <button id="downloadButton" class="px-8 py-3 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition duration-200 disabled:opacity-50 shadow-md hover:shadow-lg" onclick="downloadOutput()" disabled>
+                    <span data-i18n="btnDownload">Download .ini</span>
                 </button>
             </div>
         </div>
@@ -87,217 +83,161 @@
 
     <script>
         const FORBIDDEN_CHARS = "!+";
-        const API_KEY = ""; // Залишити порожнім. Ключ надається середовищем.
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
-
-        // --- СТАН ДОДАТКУ ---
+        
+        // --- APP STATE ---
         const STATE = {
-            currentLang: 'uk',
-            currentTheme: 'light',
-            database: [], // Зберігаємо тут об'єкти контенту
+            currentLang: 'en', // English by default
+            database: [], // Content objects are stored here
         };
-
-        // --- ПЕРЕКЛАДИ ---
+        
+        // --- TRANSLATIONS ---
         const translations = {
             uk: {
                 appTitle: "HTML->INI Генератор Бази Даних",
                 mainHeader: "Генератор Бази Даних (HTML → INI)",
                 subheader: "Вставте вміст HTML-файлу зі списком контенту (каталогу) для генерації INI-подібного формату.",
                 labelHtmlInput: "1. Вставте вміст HTML-файлу:",
-                placeholderHtmlInput: "Вставте сюди весь код HTML-сторінки, що містить список файлів...",
+                placeholderHtmlInput: "Вставте сюди весь код HTML-сторінки, що містить список файлів (наприклад, з Myrient або Internet Archive)...",
                 btnGenerateDB: "Згенерувати Базу Даних",
-                btnGenerateAI: "✨ Згенерувати Описи (AI-пошук)",
                 labelIniOutput: "2. Результат (INI-подібний формат):",
                 btnCopy: "Копіювати результат",
                 btnDownload: "Завантажити .ini",
                 statusProcessing: "Обробка...",
                 statusErrorNoInput: "Будь ласка, вставте HTML-код.",
                 statusErrorParsing: "Помилка обробки: Не вдалося знайти записи. Перевірте консоль.",
-                statusErrorParsingStructure: "Не вдалося знайти записи про контент (посилання та розмір) у HTML-файлі. Переконайтеся, що структура містить <tr> з <td> класами 'link' та 'size'.",
+                statusErrorParsingStructure: "Не вдалося знайти записи про контент (посилання та розмір) у HTML-файлі. Переконайтеся, що дані містяться у структурі <tr>/<td>.",
                 statusFound: (count) => `Успішно знайдено ${count} записів контенту.`,
                 statusCopied: "Результат скопійовано!",
                 statusDownloaded: "Файл завантажено!",
-                aiStatusGenerating: (i, total) => `AI генерує описи: ${i} з ${total}...`,
-                aiStatusComplete: "Генерацію описів завершено!",
-                aiStatusFailed: "Помилка AI-генерації. Перевірте консоль.",
-                aiStatusNoData: "Спершу згенеруйте базу даних, натиснувши 'Згенерувати Базу Даних'.",
-                themeLight: "Світла тема",
-                themeDark: "Темна тема",
             },
             en: {
                 appTitle: "HTML->INI Database Generator",
                 mainHeader: "Database Generator (HTML → INI)",
-                subheader: "Paste the content of an HTML file containing a content (directory) listing to generate INI-like format.",
-                labelHtmlInput: "1. Paste HTML file content:",
-                placeholderHtmlInput: "Paste the entire HTML page code here, containing the file list (e.g., <tr><td class=&quot;link&quot;><a href=&quot;...&quot;>File.zip</a></td><td class=&quot;size&quot;>1.2 GB</td></tr>)...",
+                subheader: "Paste the HTML directory listing to instantly generate INI-like database entries.",
+                labelHtmlInput: "1. Paste HTML File Content:",
+                placeholderHtmlInput: "Paste the entire HTML page code here, containing the file list (e.g., from Myrient or Internet Archive listing)...",
                 btnGenerateDB: "Generate Database",
-                btnGenerateAI: "✨ Generate Descriptions (AI Search)",
-                labelIniOutput: "2. Result (INI-like format):",
+                labelIniOutput: "2. Result (INI-like Format):",
                 btnCopy: "Copy Result",
                 btnDownload: "Download .ini",
                 statusProcessing: "Processing...",
                 statusErrorNoInput: "Please paste the HTML code.",
                 statusErrorParsing: "Processing error: Could not find records. Check console.",
-                statusErrorParsingStructure: "Could not find content records (links and sizes) in the HTML file. Ensure the structure contains <tr> with <td> classes 'link' and 'size'.",
+                statusErrorParsingStructure: "Could not find content records (links and sizes) in the HTML file. Ensure the data is contained within a <tr>/<td> structure.",
                 statusFound: (count) => `Successfully found ${count} content records.`,
                 statusCopied: "Result copied!",
                 statusDownloaded: "File downloaded!",
-                aiStatusGenerating: (i, total) => `AI generating descriptions: ${i} of ${total}...`,
-                aiStatusComplete: "Description generation complete!",
-                aiStatusFailed: "AI generation failed. Check console.",
-                aiStatusNoData: "First, generate the database by clicking 'Generate Database'.",
-                themeLight: "Light Theme",
-                themeDark: "Dark Theme",
             },
         };
 
-        // --- УТИЛІТИ ДЛЯ GEMINI API ---
-        /** Пауза для експоненційного відкату. */
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        /** Обробник Fetch із експоненційним відкатом. */
-        async function retryFetch(url, options, maxRetries = 5) {
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.ok) {
-                        return response;
-                    }
-                    if (response.status === 429 && i < maxRetries - 1) { // Too Many Requests
-                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                        console.warn(`[API] Rate limit hit. Retrying in ${delay / 1000}s...`);
-                        await sleep(delay);
-                    } else {
-                        const errorText = await response.text();
-                        throw new Error(`API Error ${response.status}: ${errorText}`);
-                    }
-                } catch (error) {
-                    if (i === maxRetries - 1) throw error;
-                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                    console.warn(`[API] Fetch error: ${error.message}. Retrying in ${delay / 1000}s...`);
-                    await sleep(delay);
-                }
-            }
-        }
+        // --- PARSING AND GENERATION LOGIC ---
 
         /**
-         * Генерує опис для одного елемента за допомогою Gemini API та Google Search Grounding.
-         */
-        async function generateDescriptionForEntry(itemTitle, targetLang) {
-            // Отримуємо назву мови, оскільки в системний промт краще передати повну назву
-            const fullLangName = targetLang === 'uk' ? 'Ukrainian' : 'English';
-
-            const systemPrompt = `You are a helpful content analyst. Your task is to find a brief, single-paragraph description (max 3 sentences) for the item provided. The description must be in ${fullLangName}. Focus on the content of the file (e.g., if it's a game, describe the game, its platform, and year). If no information is found, respond with "Description not available.".`;
-
-            // Якщо мова українська, додаємо пошуковий запит українською
-            let userQuery;
-            if (targetLang === 'uk') {
-                 userQuery = `Find a brief description for this item title, and provide the answer in Ukrainian: "${itemTitle}".`;
-            } else {
-                 userQuery = `Find a brief description for this item title: "${itemTitle}".`;
-            }
-
-
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                tools: [{ "google_search": {} }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                config: {
-                    temperature: 0.2,
-                }
-            };
-
-            const response = await retryFetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-            const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-            // Видаляємо цитати, оскільки вони не потрібні в INI-файлі
-            return text.replace(/\[\d+\]/g, '').trim();
-        }
-
-        // --- ЛОГІКА ПАРСИНГУ І ГЕНЕРАЦІЇ ---
-
-        /**
-         * Очищує назву файлу для використання як унікальний заголовок INI-секції.
+         * Cleans the filename for use as a unique INI section header.
          */
         function clean_title(title) {
             const lastDotIndex = title.lastIndexOf('.');
             const titleNoExt = (lastDotIndex > 0) ? title.substring(0, lastDotIndex) : title;
-
+            
             const forbiddenRegex = new RegExp(`[${FORBIDDEN_CHARS.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`, 'g');
             let cleaned = titleNoExt.replace(forbiddenRegex, '');
-
+            
             return cleaned.trim();
         }
 
         /**
-         * Витягує шлях до каталогу з URL-адреси завантаження.
+         * Extracts the directory path from the download URL.
          */
         function get_dir_from_url(url) {
             try {
-                const tempUrl = new URL(url, window.location.href);
+                const tempUrl = new URL(url, window.location.href); 
                 let pathSegment = tempUrl.pathname;
-
+                
                 let pathDecoded = decodeURIComponent(pathSegment);
-
+                
                 pathDecoded = pathDecoded.startsWith('/') ? pathDecoded.substring(1) : pathDecoded;
-
+                
                 const lastSlashIndex = pathDecoded.lastIndexOf('/');
                 if (lastSlashIndex === -1) {
-                    return "";
+                    return ""; 
                 }
-
+                
                 return pathDecoded.substring(0, lastSlashIndex);
             } catch (e) {
-                console.error("Помилка парсингу URL:", e);
+                console.error("URL parsing error:", e);
                 return "";
             }
         }
 
         /**
-         * Парсить HTML-контент і повертає список об'єктів з даними контенту.
+         * Parses HTML content and returns a list of content data objects.
          */
         function parseHtmlToDatabase(htmlContent) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlContent, 'text/html');
             const contentList = [];
-
-            // Використовуємо .querySelectorAll для кращої сумісності
+            
+            // Look for table rows
             const rows = doc.querySelectorAll('tr');
 
             rows.forEach(row => {
-                const linkCell = row.querySelector('td.link');
-                const sizeCell = row.querySelector('td.size');
-
-                if (linkCell && sizeCell) {
-                    const anchor = linkCell.querySelector('a');
-
-                    if (anchor && anchor.href && anchor.textContent.trim()) {
-                        const itemTitle = anchor.textContent.trim();
-                        const dataUrl = anchor.href;
-                        const itemSize = sizeCell.textContent.trim();
-
-                        const uniqueTitle = clean_title(itemTitle);
-                        const pathValue = get_dir_from_url(dataUrl);
-
-                        contentList.push({
-                            unique_title: uniqueTitle,
-                            itemTitle: itemTitle,
-                            itemVersion: "",
-                            itemAuthor: "",
-                            itemSize: itemSize,
-                            path: pathValue,
-                            itemDescription: "", // Початково порожнє
-                            dataurl: dataUrl
-                        });
+                let anchor = null;
+                let itemSize = '';
+                
+                // 1. Find the file link (<a>) in the row
+                const linkElements = row.querySelectorAll('a[href]');
+                for (const link of linkElements) {
+                    const linkText = link.textContent.trim();
+                    // Skip parent directory links
+                    if (linkText !== '..' && link.getAttribute('href') !== '..') {
+                        anchor = link;
+                        break;
                     }
+                }
+                
+                if (!anchor) {
+                    return; 
+                }
+
+                // 2. Find the file size. 
+                const cells = row.querySelectorAll('td');
+                
+                // Priority 1: Myrient-style (class="size")
+                const sizeCellMyrient = row.querySelector('td.size');
+                if (sizeCellMyrient) {
+                    itemSize = sizeCellMyrient.textContent.trim();
+                }
+
+                // Priority 2: Internet Archive / General style (search all <td> for size units)
+                if (!itemSize) {
+                    for (const cell of cells) {
+                        const text = cell.textContent.trim();
+                        // Pattern: number (with/without dot), optional space, unit (KiB, MiB, GiB, KB, MB, GB, bytes)
+                        if (/\d+(\.\d+)?\s?(KiB|MiB|GiB|KB|MB|GB|bytes)/i.test(text)) {
+                            itemSize = text;
+                            break; 
+                        }
+                    }
+                }
+                
+                // 3. If a link and size are found, add the item
+                if (anchor && itemSize) {
+                    const itemTitle = anchor.textContent.trim();
+                    const dataUrl = anchor.href; 
+                    
+                    const uniqueTitle = clean_title(itemTitle);
+                    const pathValue = get_dir_from_url(dataUrl);
+
+                    contentList.push({
+                        unique_title: uniqueTitle,
+                        itemTitle: itemTitle,
+                        itemVersion: "",
+                        itemAuthor: "",
+                        itemSize: itemSize,
+                        path: pathValue,
+                        // itemDescription field is removed
+                        dataurl: dataUrl
+                    });
                 }
             });
 
@@ -305,203 +245,149 @@
         }
 
         /**
-         * Форматує базу даних у INI-подібний рядок.
+         * Formats the database into an INI-like string.
          */
         function generateIniFormat(database) {
             const iniContent = [];
-
+            
             database.forEach(entry => {
-                // [Unique Title]
                 iniContent.push(`\n[${entry.unique_title}]`);
-
-                // itemTitle
+                
                 iniContent.push(`itemTitle=${entry.itemTitle}`);
-
-                // itemVersion (опціонально)
+                
                 if (entry.itemVersion) {
                     iniContent.push(`itemVersion=${entry.itemVersion}`);
                 }
-
-                // itemAuthor (опціонально)
+                
                 if (entry.itemAuthor) {
                     iniContent.push(`itemAuthor=${entry.itemAuthor}`);
                 }
 
-                // itemSize (опціонально)
                 if (entry.itemSize) {
                     iniContent.push(`itemSize=${entry.itemSize}`);
                 }
 
-                // path
                 iniContent.push(`path=${entry.path}`);
 
-                // itemDescription (опціонально) - тепер це поле може бути заповнено
-                if (entry.itemDescription) {
-                    iniContent.push(`itemDescription=${entry.itemDescription}`);
-                }
-
-                // dataurl
                 iniContent.push(`dataurl=${entry.dataurl}`);
             });
 
             return iniContent.join('\n');
         }
 
-        // --- ОСНОВНІ ФУНКЦІЇ ДОДАТКУ ---
+        // --- CORE APP FUNCTIONS ---
 
         /**
-         * Головна функція, яка запускає процес парсингу.
+         * Main function that starts the parsing process.
          */
         function processHtml() {
             const htmlInput = document.getElementById('htmlInput').value;
-            const statusMessage = document.getElementById('statusMessage');
-            const processButton = document.getElementById('processButton');
-
-            // Скидання стану
+            
             STATE.database = [];
             document.getElementById('iniOutput').value = '';
-
-            setStatus(translations[STATE.currentLang].statusProcessing, 'text-blue-600 dark:text-blue-400');
-            setButtonsDisabled(true, true, true);
+            
+            setStatus(translations[STATE.currentLang].statusProcessing, 'text-blue-600');
+            // Вмикаємо/вимикаємо кнопки лише для парсингу та дій
+            setButtonsDisabled(true, true); 
 
             if (!htmlInput.trim()) {
-                setStatus(translations[STATE.currentLang].statusErrorNoInput, 'text-red-600 dark:text-red-400');
-                setButtonsDisabled(false, true, true);
+                setStatus(translations[STATE.currentLang].statusErrorNoInput, 'text-red-600');
+                setButtonsDisabled(false, true);
                 return;
             }
 
             try {
                 const database = parseHtmlToDatabase(htmlInput);
                 STATE.database = database;
-
+                
                 if (database.length === 0) {
                     document.getElementById('iniOutput').value = translations[STATE.currentLang].statusErrorParsingStructure;
-                    setStatus(translations[STATE.currentLang].statusFound(0), 'text-orange-600 dark:text-orange-400');
-                    setButtonsDisabled(false, true, true);
+                    setStatus(translations[STATE.currentLang].statusFound(0), 'text-orange-600');
+                    setButtonsDisabled(false, true);
                 } else {
                     const iniResult = generateIniFormat(database);
                     document.getElementById('iniOutput').value = iniResult;
+                    
+                    setStatus(translations[STATE.currentLang].statusFound(database.length), 'text-green-600');
 
-                    setStatus(translations[STATE.currentLang].statusFound(database.length), 'text-green-600 dark:text-green-400');
-
-                    // Активуємо кнопки копіювання/завантаження та AI
-                    setButtonsDisabled(false, false, false);
+                    // Активуємо кнопки копіювання/завантаження
+                    setButtonsDisabled(false, false); 
                 }
             } catch (e) {
                 console.error(e);
                 document.getElementById('iniOutput').value = translations[STATE.currentLang].statusErrorParsing + `\n${e.message}`;
-                setStatus(translations[STATE.currentLang].statusErrorParsing, 'text-red-600 dark:text-red-400');
-                setButtonsDisabled(false, true, true);
+                setStatus(translations[STATE.currentLang].statusErrorParsing, 'text-red-600');
+                setButtonsDisabled(false, true);
             }
         }
-
+        
         /**
-         * Запускає генерацію описів для всіх елементів у базі даних.
-         */
-        async function generateAllDescriptions() {
-            if (STATE.database.length === 0) {
-                setStatus(translations[STATE.currentLang].aiStatusNoData, 'text-orange-600 dark:text-orange-400');
-                return;
-            }
-
-            const total = STATE.database.length;
-            const aiButton = document.getElementById('aiButton');
-            setButtonsDisabled(true, true, true); // Вимикаємо всі кнопки під час роботи AI
-
-            try {
-                for (let i = 0; i < total; i++) {
-                    const entry = STATE.database[i];
-
-                    // Оновлення статусу, щоб користувач бачив прогрес
-                    setStatus(translations[STATE.currentLang].aiStatusGenerating(i + 1, total), 'text-purple-600 dark:text-purple-400');
-
-                    // Отримуємо опис
-                    // Передаємо STATE.currentLang, щоб AI генерував опис потрібною мовою
-                    const description = await generateDescriptionForEntry(entry.itemTitle, STATE.currentLang);
-
-                    // Зберігаємо опис у об'єкті
-                    entry.itemDescription = description;
-                }
-
-                // Перегенеруємо INI з новими описами
-                const iniResult = generateIniFormat(STATE.database);
-                document.getElementById('iniOutput').value = iniResult;
-
-                setStatus(translations[STATE.currentLang].aiStatusComplete, 'text-green-600 dark:text-green-400');
-                setButtonsDisabled(false, false, false); // Активуємо кнопки
-            } catch (e) {
-                console.error("AI Generation Failed:", e);
-                setStatus(translations[STATE.currentLang].aiStatusFailed, 'text-red-600 dark:text-red-400');
-                setButtonsDisabled(false, true, true); // Активуємо тільки кнопки парсингу
-            }
-        }
-
-        /**
-         * Встановлює повідомлення про статус.
+         * Sets the status message.
          */
         function setStatus(message, className) {
             const statusMessage = document.getElementById('statusMessage');
             statusMessage.textContent = message;
-            statusMessage.className = `text-center text-sm font-medium h-6 ${className}`;
+            statusMessage.className = `text-center text-base font-medium h-6 ${className}`;
         }
 
         /**
-         * Контролює стан кнопок
-         * @param {boolean} process Заблокувати/розблокувати кнопку "Згенерувати Базу Даних".
-         * @param {boolean} ai Заблокувати/розблокувати кнопку "Згенерувати Описи".
-         * @param {boolean} actions Заблокувати/розблокувати кнопки копіювання/завантаження.
+         * Controls the state of the buttons.
+         * @param {boolean} process Disabled state for "Generate Database" button.
+         * @param {boolean} actions Disabled state for copy/download buttons.
          */
-        function setButtonsDisabled(process, ai, actions) {
+        function setButtonsDisabled(process, actions) {
             document.getElementById('processButton').disabled = process;
-            document.getElementById('aiButton').disabled = ai;
             document.getElementById('copyButton').disabled = actions;
             document.getElementById('downloadButton').disabled = actions;
         }
 
         /**
-         * Копіює результат до буфера обміну.
+         * Copies the output to the clipboard.
          */
         function copyOutput() {
             const iniOutput = document.getElementById('iniOutput');
             iniOutput.select();
             document.execCommand('copy');
-            setStatus(translations[STATE.currentLang].statusCopied, 'text-green-600 dark:text-green-400');
+            setStatus(translations[STATE.currentLang].statusCopied, 'text-green-600');
         }
 
         /**
-         * Завантажує результат як INI-файл.
+         * Downloads the output as an INI file.
          */
         function downloadOutput() {
             const iniOutput = document.getElementById('iniOutput').value;
             const filename = 'submenu_database.ini';
             const blob = new Blob([iniOutput], { type: 'text/plain;charset=utf-8' });
-
+            
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            setStatus(translations[STATE.currentLang].statusDownloaded, 'text-green-600 dark:text-green-400');
+            setStatus(translations[STATE.currentLang].statusDownloaded, 'text-green-600');
         }
-
-        // --- ЛОГІКА ТЕМИ ТА МОВИ ---
-
+        
+        // --- LANGUAGE LOGIC ---
+        
         /**
-         * Оновлює всі елементи інтерфейсу відповідно до поточної мови.
+         * Updates all UI elements according to the current language.
          */
         function updateUI() {
             const lang = STATE.currentLang;
-
-            // Оновлення текстового контенту
+            
+            // Update text content
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[lang] && translations[lang][key]) {
+                    if (typeof translations[lang][key] === 'function') {
+                        return;
+                    }
                     el.textContent = translations[lang][key];
                 }
             });
 
-            // Оновлення placeholder'ів
+            // Update placeholders
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
                 if (translations[lang] && translations[lang][key]) {
@@ -509,16 +395,16 @@
                 }
             });
 
-            // Оновлення заголовка сторінки
+            // Update page title
             document.title = translations[lang].appTitle;
             document.documentElement.lang = lang;
-
-            // Встановлюємо правильний вибір мови
+            
+            // Set the correct language selector value
             document.getElementById('langSelect').value = lang;
         }
 
         /**
-         * Перемикає мову додатку.
+         * Toggles the application language.
          */
         function toggleLanguage(lang) {
             STATE.currentLang = lang;
@@ -527,64 +413,33 @@
         }
 
         /**
-         * Встановлює тему та оновлює іконку
-         */
-        function applyTheme(theme) {
-            const root = document.documentElement;
-            const themeIcon = document.getElementById('themeIcon');
-
-            if (theme === 'dark') {
-                root.classList.add('dark');
-                STATE.currentTheme = 'dark';
-                // Іконка Місяця (пропонує перейти до світлої)
-                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>`;
-            } else {
-                root.classList.remove('dark');
-                STATE.currentTheme = 'light';
-                // Іконка Сонця (пропонує перейти до темної)
-                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>`;
-            }
-            localStorage.setItem('theme', STATE.currentTheme);
-        }
-
-        /**
-         * Перемикає світлу/темну тему.
-         */
-        function toggleTheme() {
-            const newTheme = STATE.currentTheme === 'light' ? 'dark' : 'light';
-            applyTheme(newTheme);
-        }
-
-        /**
-         * Завантажує налаштування з localStorage при завантаженні сторінки.
+         * Loads settings from localStorage on page load and detects browser language.
          */
         function loadSettings() {
             const savedLang = localStorage.getItem('lang');
-            const savedTheme = localStorage.getItem('theme');
-
-            // 1. Завантаження мови
+            
             if (savedLang && translations[savedLang]) {
+                // Пріоритет 1: Використовуємо збережену мову
                 STATE.currentLang = savedLang;
             } else {
-                const browserLang = navigator.language.substring(0, 2);
-                if (translations[browserLang]) {
-                    STATE.currentLang = browserLang;
+                // Пріоритет 2: Визначаємо мову браузера
+                // Отримуємо базовий код мови (наприклад, 'uk-UA' -> 'uk')
+                const browserLang = (navigator.language || navigator.languages[0] || 'en').substring(0, 2);
+                
+                if (browserLang === 'uk') {
+                    STATE.currentLang = 'uk';
+                } else if (browserLang === 'en') {
+                    STATE.currentLang = 'en';
+                } else {
+                    // Пріоритет 3: Повертаємося до англійської за замовчуванням
+                    STATE.currentLang = 'en'; 
                 }
             }
-
-            // 2. Завантаження теми
-            let initialTheme = 'light';
-            if (savedTheme) {
-                initialTheme = savedTheme;
-            } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                initialTheme = 'dark';
-            }
-            applyTheme(initialTheme); // Встановлюємо тему та оновлюємо іконку
-
+            
             updateUI();
         }
 
-        // Ініціалізація налаштувань при завантаженні
+        // Initialization on load
         window.onload = loadSettings;
 
     </script>
