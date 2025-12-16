@@ -152,9 +152,9 @@ def generate_ini_format(database: list) -> str:
         ini_content.append(f"itemDescription=")
 
 
-        # 6. itemSize
-        if entry['itemSize']:
-            ini_content.append(f"itemSize={entry['itemSize']}")
+        # 6. itemSize - Завжди включаємо, навіть якщо розмір не вдалося витягти (тоді значення буде порожнім).
+        # Ця зміна забезпечує наявність усіх рядків, як ви просили.
+        ini_content.append(f"itemSize={entry['itemSize']}")
 
         # 7. path - ФІКСОВАНЕ ЗНАЧЕННЯ 'redump\'
         # Це відповідає вашому запиту
