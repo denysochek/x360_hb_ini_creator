@@ -10,17 +10,17 @@ FORBIDDEN_CHARS = "!+"
 def clean_title(title: str) -> str:
     """
     Очищає назву файлу, видаляючи розширення та заборонені символи,
-    для використання як унікального заголовка секції INI (ця функція 
+    для використання як унікального заголовка секції INI (ця функція
     зберігається для очищення itemTitle, хоча не використовується для заголовка секції INI).
     """
     # Знаходимо останню крапку, щоб видалити розширення
     last_dot_index = title.rfind('.')
     title_no_ext = title[:last_dot_index] if last_dot_index > 0 else title
-    
+
     # Видаляємо заборонені символи
     forbidden_regex = re.compile(f'[{re.escape(FORBIDDEN_CHARS)}]')
     cleaned = forbidden_regex.sub('', title_no_ext)
-    
+
     return cleaned.strip()
 
 def get_dir_from_url(url: str) -> str:
@@ -35,19 +35,19 @@ def get_dir_from_url(url: str) -> str:
         parsed_url = urlparse(url)
         # Отримуємо шлях (наприклад, /files/Redump/Microsoft%20-%20Xbox%20360/file.zip)
         path_segment = parsed_url.path
-        
+
         # Декодуємо URL-кодування (%20, %2F тощо)
         path_decoded = unquote(path_segment)
-        
+
         # Видаляємо початковий слеш, якщо він є
         if path_decoded.startswith('/'):
             path_decoded = path_decoded[1:]
-        
+
         # Знаходимо останній слеш і повертаємо все, що до нього
         last_slash_index = path_decoded.rfind('/')
         if last_slash_index == -1:
-            return "" 
-        
+            return ""
+
         return path_decoded[:last_slash_index]
     except Exception as e:
         # У разі помилки парсингу URL
@@ -56,20 +56,20 @@ def get_dir_from_url(url: str) -> str:
 
 def parse_html_to_database(html_content: str) -> list:
     """
-    Парсить HTML-вміст, шукаючи посилання на файли та їхні розміри, 
+    Парсить HTML-вміст, шукаючи посилання на файли та їхні розміри,
     і повертає список об'єктів контенту.
     """
     # Використовуємо 'lxml' парсер, оскільки він швидкий та надійний
     soup = BeautifulSoup(html_content, 'lxml')
     content_list = []
-    
+
     # Шукаємо всі рядки таблиці (<tr>), оскільки більшість списків каталогів використовує таблиці
     rows = soup.find_all('tr')
 
     for row in rows:
         anchor = None
         item_size = ''
-        
+
         # 1. Знаходимо посилання на файл (<a>)
         link_elements = row.find_all('a', href=True)
         for link in link_elements:
@@ -78,12 +78,12 @@ def parse_html_to_database(html_content: str) -> list:
             if link_text != '..' and link.get('href') != '..':
                 anchor = link
                 break
-        
+
         if not anchor:
             continue
-        
+
         # 2. Знаходимо розмір файлу
-        
+
         # Пріоритет 1: Стиль Myrient (комірка з класом 'size')
         size_cell_myrient = row.find('td', class_='size')
         if size_cell_myrient:
@@ -94,19 +94,19 @@ def parse_html_to_database(html_content: str) -> list:
             cells = row.find_all('td')
             for cell in cells:
                 text = cell.get_text(strip=True)
-                
+
                 # Підтримує: 6.5 GiB (Myrient fallback), 400M (Internet Archive), 1.5G, 100K, bytes
                 size_units_regex = r'\d+(\.\d+)?\s?(K|M|G|T|P|KiB|MiB|GiB|TiB|PiB|KB|MB|GB|TB|PB|bytes)\Z'
-                
+
                 if re.search(size_units_regex, text, re.IGNORECASE):
                     item_size = text
                     break
-        
+
         # 3. Якщо знайдено посилання та розмір, додаємо елемент
         if anchor and item_size:
             item_title = anchor.get_text(strip=True)
             data_url = anchor.get('href')
-            
+
             # unique_title більше не використовується для заголовка секції, але залишаємо для повноти
             unique_title = clean_title(item_title)
             # Шлях видобувається, але ігнорується у виводі INI
@@ -127,23 +127,23 @@ def parse_html_to_database(html_content: str) -> list:
 
 def generate_ini_format(database: list) -> str:
     """
-    Форматує базу даних у INI-подібний рядок, використовуючи послідовну нумерацію 
-    для заголовків секцій та задані значення за замовчуванням (itemVersion, itemAuthor, path='redump\').
+    Форматує базу даних у INI-подібний рядок, використовуючи послідовну нумерацію
+    для заголовків секцій та задані значення за замовчуванням (itemVersion, itemAuthor, path='\').
     """
     ini_content = []
-    
+
     # Використовуємо enumerate для отримання послідовного номера, починаючи з 1
     for index, entry in enumerate(database, 1):
         # 1. Заголовок секції - послідовний номер
         ini_content.append(f"\n[{index}]")
-        
+
         # 2. itemTitle
         ini_content.append(f"itemTitle={entry['itemTitle']}")
-        
+
         # 3. itemVersion - за замовчуванням '0.32'
         version = entry['itemVersion'] if entry['itemVersion'] else '0.32'
         ini_content.append(f"itemVersion={version}")
-        
+
         # 4. itemAuthor - за замовчуванням 'x360_hb_ini_creator'
         author = entry['itemAuthor'] if entry['itemAuthor'] else 'x360_hb_ini_creator'
         ini_content.append(f"itemAuthor={author}")
@@ -153,12 +153,11 @@ def generate_ini_format(database: list) -> str:
 
 
         # 6. itemSize - Завжди включаємо, навіть якщо розмір не вдалося витягти (тоді значення буде порожнім).
-        # Ця зміна забезпечує наявність усіх рядків, як ви просили.
         ini_content.append(f"itemSize={entry['itemSize']}")
 
-        # 7. path - ФІКСОВАНЕ ЗНАЧЕННЯ 'redump\'
-        # Це відповідає вашому запиту
-        fixed_path = 'redump\\'
+        # 7. path - ФІКСОВАНЕ ЗНАЧЕННЯ '\'
+        # Змінено на запит користувача
+        fixed_path = '\\'
         ini_content.append(f"path={fixed_path}")
 
         # 8. dataurl
@@ -176,18 +175,18 @@ def main():
         formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
-        'html_file', 
-        type=str, 
+        'html_file',
+        type=str,
         help="Шлях до вхідного HTML-файлу, що містить список каталогів (наприклад, input.html)."
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Зчитуємо вміст HTML-файлу
         with open(args.html_file, 'r', encoding='utf-8') as f:
             html_content = f.read()
-            
+
     except FileNotFoundError:
         print(f"Помилка: Файл '{args.html_file}' не знайдено.", file=sys.stderr)
         sys.exit(1)
@@ -198,17 +197,17 @@ def main():
     # Запускаємо парсинг
     try:
         database = parse_html_to_database(html_content)
-        
+
         if not database:
             print("Попередження: Не вдалося знайти записи про контент (посилання та розмір) у HTML-файлі. Переконайтеся, що дані містяться у структурі <tr>/<td>.", file=sys.stderr)
             sys.exit(0)
 
         # Генеруємо вивід у форматі INI
         ini_result = generate_ini_format(database)
-        
+
         # Виводимо результат у стандартний вивід
         print(ini_result)
-        
+
     except Exception as e:
         print(f"Сталася несподівана помилка під час обробки: {e}", file=sys.stderr)
         sys.exit(1)
