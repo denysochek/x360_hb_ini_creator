@@ -10,7 +10,8 @@ FORBIDDEN_CHARS = "!+"
 def clean_title(title: str) -> str:
     """
     Очищає назву файлу, видаляючи розширення та заборонені символи,
-    для використання як унікального заголовка секції INI.
+    для використання як унікального заголовка секції INI (ця функція 
+    зберігається для очищення itemTitle, хоча не використовується для заголовка секції INI).
     """
     # Знаходимо останню крапку, щоб видалити розширення
     last_dot_index = title.rfind('.')
@@ -26,6 +27,8 @@ def get_dir_from_url(url: str) -> str:
     """
     Видобуває шлях до каталогу з повного URL-адреси файлу.
     Приклад: 'http://example.com/path/to/file.zip' -> 'path/to'
+    (Ця функція більше не використовується для встановлення поля 'path' у вивідному INI,
+    але залишається для потенційного використання.)
     """
     try:
         # Парсимо URL
@@ -82,13 +85,11 @@ def parse_html_to_database(html_content: str) -> list:
         # 2. Знаходимо розмір файлу
         
         # Пріоритет 1: Стиль Myrient (комірка з класом 'size')
-        # Це спрацює для Myrient
         size_cell_myrient = row.find('td', class_='size')
         if size_cell_myrient:
             item_size = size_cell_myrient.get_text(strip=True)
 
         # Пріоритет 2: Загальний стиль (шукаємо в усіх комірках (<td>) одиниці розміру)
-        # Це спрацює для Internet Archive та як fallback для Myrient
         if not item_size:
             cells = row.find_all('td')
             for cell in cells:
@@ -106,16 +107,19 @@ def parse_html_to_database(html_content: str) -> list:
             item_title = anchor.get_text(strip=True)
             data_url = anchor.get('href')
             
+            # unique_title більше не використовується для заголовка секції, але залишаємо для повноти
             unique_title = clean_title(item_title)
+            # Шлях видобувається, але ігнорується у виводі INI
             path_value = get_dir_from_url(data_url)
 
             content_list.append({
                 'unique_title': unique_title,
                 'itemTitle': item_title,
+                # Ці поля будуть використовуватись у generate_ini_format з дефолтами
                 'itemVersion': '',
                 'itemAuthor': '',
                 'itemSize': item_size,
-                'path': path_value,
+                'path': path_value, # Зберігаємо витягнуте значення, але використаємо фіксоване для INI
                 'dataurl': data_url
             })
 
@@ -123,26 +127,41 @@ def parse_html_to_database(html_content: str) -> list:
 
 def generate_ini_format(database: list) -> str:
     """
-    Форматує базу даних у INI-подібний рядок.
+    Форматує базу даних у INI-подібний рядок, використовуючи послідовну нумерацію 
+    для заголовків секцій та задані значення за замовчуванням (itemVersion, itemAuthor, path='redump\').
     """
     ini_content = []
     
-    for entry in database:
-        ini_content.append(f"\n[{entry['unique_title']}]")
+    # Використовуємо enumerate для отримання послідовного номера, починаючи з 1
+    for index, entry in enumerate(database, 1):
+        # 1. Заголовок секції - послідовний номер
+        ini_content.append(f"\n[{index}]")
         
+        # 2. itemTitle
         ini_content.append(f"itemTitle={entry['itemTitle']}")
         
-        if entry['itemVersion']:
-            ini_content.append(f"itemVersion={entry['itemVersion']}")
+        # 3. itemVersion - за замовчуванням '0.32'
+        version = entry['itemVersion'] if entry['itemVersion'] else '0.32'
+        ini_content.append(f"itemVersion={version}")
         
-        if entry['itemAuthor']:
-            ini_content.append(f"itemAuthor={entry['itemAuthor']}")
+        # 4. itemAuthor - за замовчуванням 'x360_hb_ini_creator'
+        author = entry['itemAuthor'] if entry['itemAuthor'] else 'x360_hb_ini_creator'
+        ini_content.append(f"itemAuthor={author}")
 
+        # 5. itemDescription - Додаємо це поле з порожнім значенням, оскільки воно не витягується.
+        ini_content.append(f"itemDescription=")
+
+
+        # 6. itemSize
         if entry['itemSize']:
             ini_content.append(f"itemSize={entry['itemSize']}")
 
-        ini_content.append(f"path={entry['path']}")
+        # 7. path - ФІКСОВАНЕ ЗНАЧЕННЯ 'redump\'
+        # Це відповідає вашому запиту
+        fixed_path = 'redump\\'
+        ini_content.append(f"path={fixed_path}")
 
+        # 8. dataurl
         ini_content.append(f"dataurl={entry['dataurl']}")
 
     return '\n'.join(ini_content)
